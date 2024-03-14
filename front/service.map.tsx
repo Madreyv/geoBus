@@ -31,4 +31,6 @@ export const getSocket = () => {
     if(!socket){
         throw new Error ('Socket não inicializado. Por favor chame a função initializeSocket primeiro.')
     }
+
+    return socket
 }
