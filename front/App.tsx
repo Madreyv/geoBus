@@ -12,6 +12,7 @@ import { veiculosMock } from './mocks/veiculos';
 import { AntDesign } from '@expo/vector-icons';
 import { initializeSocket } from './service.map';
 import Index from './screens/index/Index';
+import LoginScreen from './screens/login/login';
 
 
 export default function App() {
@@ -80,7 +81,8 @@ export default function App() {
   // };
 
   return (
-    <Index></Index>
+    // <Index></Index>
+    <LoginScreen></LoginScreen>
     // <Container>
     //     <Dropdown
     //       style={[styles.dropdown]}
