@@ -11,8 +11,10 @@ import { Veiculos } from './tipos/tipos';
 import { veiculosMock } from './mocks/veiculos';
 import { AntDesign } from '@expo/vector-icons';
 import { initializeSocket } from './service.map';
+import 'react-native-gesture-handler';
 import Index from './screens/index/Index';
 import LoginScreen from './screens/login/login';
+import AppNavigator from './components/navigation/navigator.index';
 
 
 export default function App() {
@@ -82,7 +84,8 @@ export default function App() {
 
   return (
     // <Index></Index>
-    <LoginScreen></LoginScreen>
+    // <LoginScreen></LoginScreen>
+    <AppNavigator />
     // <Container>
     //     <Dropdown
     //       style={[styles.dropdown]}

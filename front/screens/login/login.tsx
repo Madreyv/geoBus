@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
+import { ButtonCadastrar, ButtonLogin, ButtonTextCandastrar, ButtonTextLogin, InputContainer, LoginContainer, LoginTextInput, TextLink } from './login.style';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 const LoginScreen = () => {
     const [login, setLogin] = useState('');
     const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    // const navigation = useNavigation();
+    const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
+    const handleNavigateToCadastro = () => {
+        navigation.navigate('Cadastro');
+    };
+    
     const handleMostrarSenha = () => {
         setMostrarSenha(!mostrarSenha);
     };
@@ -23,91 +32,43 @@ const LoginScreen = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.inputContainer}>
+        <LoginContainer >
+            <InputContainer >
                 {/* <Image source={require('./assets/person.png')} style={styles.icon} /> */}
-                <TextInput
-                    style={styles.input}
+                <LoginTextInput
                     value={login}
                     onChangeText={setLogin}
                     placeholder="Login"
-                />
-            </View>
-            <View style={styles.inputContainer}>
+                ></LoginTextInput>
+            </InputContainer>
+            <InputContainer >
                 {/* <Image source={require('./assets/key.png')} style={styles.icon} /> */}
-                <TextInput
-                    style={styles.input}
+                <LoginTextInput
                     value={senha}
                     onChangeText={setSenha}
                     placeholder="Senha"
                     secureTextEntry={!mostrarSenha}
-                />
+                >
+
+                </LoginTextInput>
                 <TouchableOpacity onPress={handleMostrarSenha}>
                     {/* <Image
                         source={require('./assets/eye.png')}
                         style={[styles.icon, styles.eyeIcon]}
                     /> */}
                 </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.button} onPress={handleEntrar}>
-                <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleCadastrar}>
-                <Text style={styles.buttonText}>Cadastrar</Text>
-            </TouchableOpacity>
+            </InputContainer>
+            <ButtonLogin onPress={handleEntrar}>
+                <ButtonTextLogin>Entrar</ButtonTextLogin>
+            </ButtonLogin>
+            <ButtonCadastrar onPress={handleNavigateToCadastro}>
+                <ButtonTextCandastrar>Cadastrar</ButtonTextCandastrar>
+            </ButtonCadastrar>
             <TouchableOpacity onPress={handleEsqueceuSenha}>
-                <Text style={styles.esqueceuSenha}>Esqueceu a senha? Clique aqui!</Text>
+                <TextLink>Esqueceu a senha? Clique aqui!</TextLink>
             </TouchableOpacity>
-        </View>
+        </LoginContainer>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    input: {
-        flex: 1,
-        height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        paddingLeft: 40,
-    },
-    icon: {
-        position: 'absolute',
-        width: 20,
-        height: 20,
-        resizeMode: 'contain',
-        left: 10,
-    },
-    eyeIcon: {
-        right: 10,
-    },
-    button: {
-        backgroundColor: '#007bff',
-        paddingVertical: 12,
-        paddingHorizontal: 40,
-        borderRadius: 5,
-        marginBottom: 10,
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    esqueceuSenha: {
-        color: '#007bff',
-        textDecorationLine: 'underline',
-    },
-});
 
 export default LoginScreen;
