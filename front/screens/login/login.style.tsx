@@ -11,10 +11,20 @@ export const LoginContainer = styled.View`
 export const InputContainer = styled.View`
     flex-direction: row;
     align-items: center;
+    margin-bottom: 5px;
+    /* width: 330px; */
+    width: 100%;
+    `
+export const InputFormFildContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    justify-items: flex-start;
+    width: 100%;
+    /* width: 330px; */
     margin-bottom: 20px;
-    width: 330px;
 `
-
 export const LoginTextInput = styled.TextInput`
     flex: 1;
     height: 40px;
@@ -59,11 +69,12 @@ export const TextLink = styled.Text`
     color: #007bff;
     text-decoration: underline;
 `
-/* const ButtonContainer = styled.TouchableOpacity`
-  margin-vertical: 40px;
-  width: 120px;
-  height: 40px;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: ${props => props.bgColor};
-`; */
+export const ErrorText = styled.Text`
+    color:red;
+    font-size: 10px;
+    text-align: left;
+`
+
+export const InputIcon = styled.Image`
+    width: 10px;
+`

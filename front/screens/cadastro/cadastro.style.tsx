@@ -9,13 +9,22 @@ export const Container = styled.View`
   padding-right: 20px;
 `;
 
+export const InputContainer = styled.View`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    justify-items: flex-start;
+    width: 100%;
+    margin-bottom: 20px;
+`
 export const Input = styled.TextInput`
   width: 100%;
   height: 40px;
   border-color: #ccc;
   border-width: 1px;
   border-radius: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   padding-left: 10px;
   padding-right: 10px;
 `;
@@ -50,9 +59,14 @@ export const ButtonText = styled.Text`
   text-align: center;
 `;
 
-export const ButtonTextCancelar= styled.Text`
+export const ButtonTextCancelar = styled.Text`
     color: #007bff;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
+`
+export const ErrorText = styled.Text`
+    color:red;
+    font-size: 10px;
+    text-align: left;
 `
