@@ -3,28 +3,30 @@ import { ButtonCancelar, ButtonConfirmar, ButtonContainer, ButtonText, ButtonTex
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CadastrarForm } from '../../tipos/tipos';
+import { cadastrar } from '../../services/services';
 
-type FormData = {
-    Nome: string;
-    Senha: string;
-    Email:string;
-    ConfirmarSenha:string;
-};
+
 
 const isAlpha = (value: string) => /^([A-Za-z]\s?){3,20}$/g.test(value);
 const semEspacosInicioEFim = (value: string) => /^\S.*\S$/.test(value);
 
 const CadastroScreen = () => {
-    const { control, handleSubmit, formState: { errors }, getValues  } = useForm<FormData>();
+    const { control, handleSubmit, formState: { errors }, getValues  } = useForm<CadastrarForm>();
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const handleVoltar = () => {
         navigation.goBack();
     };
 
-    const handleCadastro : SubmitHandler<FormData>= (data) => {
-        // Aqui você pode adicionar a lógica para enviar os dados de cadastro para o backend
+    const handleCadastro : SubmitHandler<CadastrarForm> = async (data) => {
         console.log('Nome:', data);
+        try{
+            let response = await cadastrar(data);
+            console.log('response')
+        }catch(error:any){
+            alert(error)
+        }
     };
 
     return (
@@ -42,7 +44,7 @@ const CadastroScreen = () => {
                         onBlur={onBlur}
                     />
                     )}
-                    name="Nome"
+                    name="nome"
                     rules={{ 
                         required: 'O Nome é obrigatório',
                         minLength:8,
@@ -53,7 +55,7 @@ const CadastroScreen = () => {
                     }}
                     defaultValue=""
                 />
-                {errors.Nome && <ErrorText>{errors.Nome.message}</ErrorText>}
+                {errors.nome && <ErrorText>{errors.nome.message}</ErrorText>}
             </InputContainer>
             
             <InputContainer>
@@ -68,7 +70,7 @@ const CadastroScreen = () => {
                         />
 
                     )}
-                    name='Email'
+                    name='email'
                     rules={{
                         required:"O Email é obrigatório",
                         pattern: {
@@ -81,7 +83,7 @@ const CadastroScreen = () => {
                     }}
                     defaultValue=''
                 ></Controller>
-                {errors.Email && <ErrorText>{errors.Email.message}</ErrorText>}
+                {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
             </InputContainer>
 
             <InputContainer>
@@ -96,7 +98,7 @@ const CadastroScreen = () => {
                             secureTextEntry={true} // Para esconder os caracteres da senha
                         />
                     )}
-                    name='Senha'
+                    name='senha'
                     defaultValue=''
                     rules={{ 
                         minLength: {
@@ -120,13 +122,13 @@ const CadastroScreen = () => {
                         }
                     }}
                 ></Controller>
-                {errors.Senha && <ErrorText>{errors.Senha.message}</ErrorText>}
+                {errors.senha && <ErrorText>{errors.senha.message}</ErrorText>}
             </InputContainer>
 
             <InputContainer>
                 <Controller
                     control={control}
-                    name='ConfirmarSenha'
+                    name='confirmarSenha'
                     render={({field:{onChange, onBlur, value}}) => (
                         <Input
                             placeholder="Confirme a senha"
@@ -141,13 +143,13 @@ const CadastroScreen = () => {
                         required: 'Confirmação de senha é obrigatória',
                         validate: {
                         matchesPassword: (value) => {
-                            const senha = getValues('Senha');
+                            const senha = getValues('senha');
                             return senha === value || 'As senhas não correspondem';
                         },
                         }
                     }}
                 ></Controller>
-                {errors.ConfirmarSenha && <ErrorText>{errors.ConfirmarSenha.message}</ErrorText>}
+                {errors.confirmarSenha && <ErrorText>{errors.confirmarSenha.message}</ErrorText>}
             </InputContainer>
             <ButtonContainer>
                 <ButtonConfirmar onPress={handleSubmit(handleCadastro)}>

@@ -4,16 +4,15 @@ import { ButtonCadastrar, ButtonLogin, ButtonTextCandastrar, ButtonTextLogin, Er
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { Controller, useForm, SubmitHandler } from 'react-hook-form';
+import { login } from '../../service.map'
+import { LoginForm, LoginResponse } from '../../tipos/tipos';
+import { logar } from '../../services/services';
 
-type FormData = {
-    Senha: string;
-    Email:string;
-};
 
 const semEspacosInicioEFim = (value: string) => /^\S.*\S$/.test(value);
 
 const LoginScreen = () => {
-    const { control, handleSubmit, formState: { errors }  } = useForm<FormData>();
+    const { control, handleSubmit, formState: { errors }  } = useForm<LoginForm>();
     const [login, setLogin] = useState('');
     const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -27,9 +26,16 @@ const LoginScreen = () => {
         setMostrarSenha(!mostrarSenha);
     };
 
-    const handleEntrar : SubmitHandler<FormData> = (data) => {
+    const handleEntrar = async (data:LoginForm) => {
         // Lógica para entrar
         console.log("data", data)
+        try {
+            let userData = await logar(data);
+
+            console.log('Usuário logado:', userData);
+        } catch (error:any) {
+            console.error('Erro ao fazer login:', error.message);
+        }
     };
 
     const handleCadastrar = () => {
@@ -45,7 +51,7 @@ const LoginScreen = () => {
             <InputFormFildContainer>
                 <Controller
                     control={control}
-                    name='Email'
+                    name='email'
                     defaultValue=''
                     render={({field:{onChange, onBlur, value}}) => (
                     <InputContainer >
@@ -70,13 +76,13 @@ const LoginScreen = () => {
                         }
                     }}
                 ></Controller>
-                {errors.Email && <ErrorText>{errors.Email.message}</ErrorText>}
+                {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
             </InputFormFildContainer>
             
             <InputFormFildContainer>
                 <Controller
                     control={control}
-                    name='Senha'
+                    name='senha'
                     defaultValue=''
                     render={({field:{onChange, onBlur, value}}) => (
                     <InputContainer >
@@ -119,7 +125,7 @@ const LoginScreen = () => {
                         }
                     }}
                 ></Controller>
-                {errors.Senha && <ErrorText>{errors.Senha.message}</ErrorText>}
+                {errors.senha && <ErrorText>{errors.senha.message}</ErrorText>}
             </InputFormFildContainer>
             <ButtonLogin onPress={handleSubmit(handleEntrar)}>
                 <ButtonTextLogin>Entrar</ButtonTextLogin>

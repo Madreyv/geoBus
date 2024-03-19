@@ -1,8 +1,13 @@
+import { argon2 } from 'argon2';
+import { hashPassword } from './utils/passwordUtils';
+import jwt from 'jsonwebtoken';
+
 const express = require('express');
 const app = express();
 const server = require("http").createServer(app);
 const io = require('socket.io')(server)
 const PORT = process.env.port || 3000;
+// const router = express.Router();
 
 const rotaUm = [
     {latitude:-22.390813620378786, longitude: -41.80612593885},
@@ -107,7 +112,60 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log('server rodando na porta '+ PORT)
 })
-  
+ 
+
+app.post('/cadastro', async(req, res) => {
+    try{
+        const {username, email, password} = req.body;
+
+        //verificar se o usuario já existe no banco de dados
+        // const exiteUsuario = await UserActivation.findOne({email});
+        // if(exiteUsuario) {
+        //     return res.status(400).json({mensage: 'Este email já esta em uso'});
+        // }
+
+        //cria hash para o password
+        const hashedPassword = await hashPassword(password);
+
+        //cria um novo usuario no banco;
+        const newUser = new User({
+            username, email, password:hashedPassword
+        })
+
+        await newUser.save(); // Salva o novo usuário no banco de dados
+
+        res.status(201).json({ message: 'Usuário registrado com sucesso' });
+    }catch(error){
+        console.error('Erro ao registrar usuário:', error);
+        res.status(500).json({ message: 'Erro ao registrar usuário' });
+    }
+})
+
+app.post('/login', async(req,res) => {
+    const{email, senha} = req.body;
+
+    //verificar se tem o usuário no banco
+    const user = await User.findOne({username});
+
+    if(!user){
+        return res.status(401).json({error: 'Usuário não encontrado'});
+    }
+
+    try{
+        if(await argon2.verify(user.passwordHash, password)){
+            const token = jwt.sign({userId: user._id}, 'seu_segredo');
+
+            return res.json({token});
+        }else{
+            //caso a senha esteja errada
+            return res.status(401).json({error:'Senha incorreta.'});
+        }
+    }catch(error){
+        console.error('Error ao verificar a senha,', error);
+
+        return res.status(500).json({error:'Erro interno do servidor no endpoint de login.'});
+    }
+})
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/index.html')
 // })
