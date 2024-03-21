@@ -6,30 +6,24 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import sequelize from './utils/connection.js';
 import User from './models/user.js';
-
-// const express = require('express');
 const app = express();
-// const server = require("http").createServer(app);
+
 const server = createServer(app);
-// const io = require('socket.io')(server)
+
 const io = new Server(server);
 const PORT = process.env.port || 3000;
-
-// const sequelize = require('./utils/connection');
-// const User = require('./models/user.js')
 
 async function syncDatabase(){
     try{
         await sequelize.sync({force:true});
         console.log('Modelos sincronizados com o banco de dados.');
     }catch(error){
-        console.log('error => ', error)
+        // console.log('error => ', error)
         console.log('Erro ao sincronizar modelos com o banco de dados')
     }
 }
 
 syncDatabase();
-// const router = express.Router();
 
 const rotaUm = [
     {latitude:-22.390813620378786, longitude: -41.80612593885},
@@ -78,9 +72,6 @@ const rotaDois = [
     {latitude:-22.372875129124402, longitude: -41.804977456863476},
     {latitude:-22.37329675154488, longitude: -41.8106944418705},
 ]
-
-// io.listen(server);
-
 
 io.on('connection', (socket) => {
     let contador = 0;
@@ -188,9 +179,6 @@ app.post('/login', async(req,res) => {
         return res.status(500).json({error:'Erro interno do servidor no endpoint de login.'});
     }
 })
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/index.html')
-// })
 
 
 
