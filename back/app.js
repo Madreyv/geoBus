@@ -1,12 +1,34 @@
-import { argon2 } from 'argon2';
-import { hashPassword } from './utils/passwordUtils';
+import argon2  from 'argon2';
+import { hashPassword } from './utils/passwordUtils.js';
 import jwt from 'jsonwebtoken';
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import sequelize from './utils/connection.js';
+import User from './models/user.js';
 
-const express = require('express');
+// const express = require('express');
 const app = express();
-const server = require("http").createServer(app);
-const io = require('socket.io')(server)
+// const server = require("http").createServer(app);
+const server = createServer(app);
+// const io = require('socket.io')(server)
+const io = new Server(server);
 const PORT = process.env.port || 3000;
+
+// const sequelize = require('./utils/connection');
+// const User = require('./models/user.js')
+
+async function syncDatabase(){
+    try{
+        await sequelize.sync({force:true});
+        console.log('Modelos sincronizados com o banco de dados.');
+    }catch(error){
+        console.log('error => ', error)
+        console.log('Erro ao sincronizar modelos com o banco de dados')
+    }
+}
+
+syncDatabase();
 // const router = express.Router();
 
 const rotaUm = [
