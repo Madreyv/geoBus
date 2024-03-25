@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Image, StyleSheet } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { TouchableOpacity } from 'react-native';
 import { ButtonCadastrar, ButtonLogin, ButtonTextCandastrar, ButtonTextLogin, ErrorText, InputContainer, InputFormFildContainer, InputIcon, LoginContainer, LoginTextInput, TextLink } from './login.style';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { Controller, useForm, SubmitHandler } from 'react-hook-form';
-import { login } from '../../service.map'
 import { LoginForm, LoginResponse } from '../../tipos/tipos';
 import { logar } from '../../services/services';
+import { AuthContext } from '../../contexts/authContext';
 
 
 const semEspacosInicioEFim = (value: string) => /^\S.*\S$/.test(value);
 
 const LoginScreen = () => {
     const { control, handleSubmit, formState: { errors }  } = useForm<LoginForm>();
-    const [login, setLogin] = useState('');
-    const [senha, setSenha] = useState('');
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    const {login} = useContext(AuthContext);
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     const handleNavigateToCadastro = () => {
@@ -28,11 +27,15 @@ const LoginScreen = () => {
 
     const handleEntrar = async (data:LoginForm) => {
         // Lógica para entrar
-        console.log("data", data)
         try {
             let userData = await logar(data);
-
-            console.log('Usuário logado:', userData);
+            let user = {
+                email: userData.response.email,
+                name: userData.response.email,
+            }
+            login(user, userData.response.token)
+            navigation.navigate('index')
+            // console.log('Usuário logado:', userData.response);
         } catch (error:any) {
             console.error('Erro ao fazer login:', error.message);
         }
@@ -53,7 +56,7 @@ const LoginScreen = () => {
                     control={control}
                     name='email'
                     defaultValue=''
-                    render={({field:{onChange, onBlur, value}}) => (
+                    render={({field:{onChange, onBlur, value = 'madreyv22@gmail.com'}}) => (
                     <InputContainer >
                         {/* <Image source={require('./assets/person.png')} style={styles.icon} /> */}
                         <LoginTextInput
@@ -84,7 +87,7 @@ const LoginScreen = () => {
                     control={control}
                     name='senha'
                     defaultValue=''
-                    render={({field:{onChange, onBlur, value}}) => (
+                    render={({field:{onChange, onBlur, value='12345678@22'}}) => (
                     <InputContainer >
                         {/* <InputIcon source={require('../../assets/icons/user.png')} /> */}
                         <LoginTextInput
@@ -133,9 +136,9 @@ const LoginScreen = () => {
             <ButtonCadastrar onPress={handleNavigateToCadastro}>
                 <ButtonTextCandastrar>Cadastrar</ButtonTextCandastrar>
             </ButtonCadastrar>
-            <TouchableOpacity onPress={handleEsqueceuSenha}>
+            {/* <TouchableOpacity onPress={handleEsqueceuSenha}>
                 <TextLink>Esqueceu a senha? Clique aqui!</TextLink>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </LoginContainer>
     );
 };

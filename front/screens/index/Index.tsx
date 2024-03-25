@@ -1,5 +1,5 @@
 import { Dropdown } from "react-native-element-dropdown";
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Container } from "./Index.style";
 import { LocationObject, getCurrentPositionAsync, requestForegroundPermissionsAsync } from "expo-location";
 import { Veiculos } from "../../tipos/tipos";
@@ -10,11 +10,15 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AntDesign } from "@expo/vector-icons";
 import { Marker } from "react-native-maps";
 import MapComponent from "../../components/map/Map";
+import { AuthContext } from "../../contexts/authContext";
+import { ParamListBase, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 
 
 export default function Index() {
 
+  const { token, logout } = useContext(AuthContext);
   const [location, setLocation] = useState<LocationObject | null>(null)
   const [veiculos, setVeiculos] = useState<Array<Veiculos>>(veiculosMock)
   const [veiculoSelecionado, setVeiculoSelecionado] = useState<Veiculos>()
@@ -25,10 +29,16 @@ export default function Index() {
   const [mensagensVeiculo, setMensagensveiculo] = useState<Array<IMensagens>>(mensagensMock)
   const [mensagensVeiculoSelecionada, setMensagensveiculoSelecionada] = useState<IMensagens>()
   const [transporteUm, setTransporteUm] = useState<any>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+
   const transporteUmMock = rotaUm
   const transporteDoisMock = rotaDois
 
   useEffect(() => {
+    logout()
+    if(token == null){
+      navigation.navigate('login');
+    }
     conectarSocket()
     requestLocationPermition()
   }, [])

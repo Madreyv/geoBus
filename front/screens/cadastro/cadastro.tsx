@@ -20,10 +20,13 @@ const CadastroScreen = () => {
     };
 
     const handleCadastro : SubmitHandler<CadastrarForm> = async (data) => {
-        console.log('Nome:', data);
+        const body = {...data, tipo:1}
+        // console.log('Nome:', data);
         try{
-            let response = await cadastrar(data);
-            console.log('response')
+            let response = await cadastrar(body);
+            alert(response.data.message)
+            navigation.navigate('Login')
+            // console.log('response', response.data.message)
         }catch(error:any){
             alert(error)
         }

@@ -25,6 +25,10 @@ const User = sequelize.define('User', {
         primaryKey: true,
         autoIncrement: true
     },
+    tipo: {
+        type: DataTypes.INTEGER,
+        allowNull:false,
+    },
     
 });
 
