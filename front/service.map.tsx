@@ -6,7 +6,7 @@ import { LoginForm, LoginResponse, UserData } from './tipos/tipos'
 let socket : Socket;
 
 export const initializeSocket = (serverUrl : string) => {
-    console.log('server', serverUrl)
+    // console.log('server', serverUrl)
     socket = io(serverUrl, {autoConnect: true});
     // console.log(socket)
     // socket.connect()

@@ -1,10 +1,5 @@
 import { DataTypes }  from 'sequelize';
 import sequelize from '../utils/connection.js';
-// import sequelize from './utils/connection.js';
-
-// const = require('sequelize');
-
-// const sequelize = require('../utils/config')
 
 const User = sequelize.define('User', {
     name:{

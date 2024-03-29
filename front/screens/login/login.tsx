@@ -29,12 +29,21 @@ const LoginScreen = () => {
         // Lógica para entrar
         try {
             let userData = await logar(data);
+            console.log('user data', userData)
             let user = {
                 email: userData.response.email,
                 name: userData.response.email,
+                tipo:userData.response.tipo,
+                idVeiculo:userData.response.veiculo,
+                id:userData.response.id
             }
+
             login(user, userData.response.token)
-            navigation.navigate('index')
+            if(user.tipo==2){
+                navigation.navigate('motorista')
+            }else{
+                navigation.navigate('index')
+            }
             // console.log('Usuário logado:', userData.response);
         } catch (error:any) {
             console.error('Erro ao fazer login:', error.message);

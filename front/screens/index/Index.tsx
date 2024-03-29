@@ -13,6 +13,9 @@ import MapComponent from "../../components/map/Map";
 import { AuthContext } from "../../contexts/authContext";
 import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { listarVeicuosDisponiveis, listarMensagensStatus } from "../../services/services";
+import { toVeiculos } from "../../dto/veiculos.dto";
+import { toMensagens } from "../../dto/mensagens.dto";
 
 
 
@@ -20,7 +23,8 @@ export default function Index() {
 
   const { token, logout } = useContext(AuthContext);
   const [location, setLocation] = useState<LocationObject | null>(null)
-  const [veiculos, setVeiculos] = useState<Array<Veiculos>>(veiculosMock)
+  // const [veiculos, setVeiculos] = useState<Array<Veiculos>>(veiculosMock)
+  const [veiculos, setVeiculos] = useState<Array<Veiculos> | null>(null)
   const [veiculoSelecionado, setVeiculoSelecionado] = useState<Veiculos>()
   const [isFocus, setIsFocus] = useState(false);
   const [contador, setContador] = useState<number>(0);
@@ -35,17 +39,25 @@ export default function Index() {
   const transporteDoisMock = rotaDois
 
   useEffect(() => {
-    logout()
     if(token == null){
       navigation.navigate('login');
     }
     conectarSocket()
     requestLocationPermition()
   }, [])
+  
+  useEffect(() => {
+    listarVeiculos()
+  },[instancia])
+  
+  useEffect(() => {
+    listarMensagens()
+  },[])
 
   useEffect(() => {
     if(instancia){
       instancia.on('localizacaoVeiculo', (localizacao:any) => {
+        console.log('localização Veiculo', localizacao)
         // Atualize a interface do usuário para exibir a localização do veículo
         modificarLocalizacao(localizacao);
     })
@@ -63,11 +75,32 @@ export default function Index() {
     }
   }
 
-  const mudarLocalizacao = () => {
-    setTimeout(() => {
-      setTransporteUm(transporteUmMock[contador])
-      setContador(contador + 1)
-    }, 1000);
+  const listarVeiculos = async () => {
+    if(instancia){
+      instancia.emit('getListaVeiculos',{localizacao:location?.coords})
+      instancia.on('listaDeVeiculos',(lista:any) => {
+        let listaVeiculo = lista.listaVeiculos;
+        let veiculos = listaVeiculo.map((data:any) => {
+          return{
+            id: data.id,
+            name:data.trajeto
+          }
+        })
+        setVeiculos(veiculos)
+      })
+    }
+  }
+
+  const listarMensagens = async() => {
+    try {
+      let mensagens = await listarMensagensStatus();
+      mensagens = mensagens.map((m:any) => {
+        return toMensagens(m)
+      })
+      setMensagensveiculo(mensagens)
+    } catch (error) {
+      alert('error mensagnes' + error)
+    }
   }
 
   const modificarLocalizacao = (localizacao:any) => {
@@ -88,10 +121,8 @@ export default function Index() {
   const selecionaVeoculo = (veiculo: any) => {
     console.log('veiculo', veiculo.id)
 
-    const socket = getSocket();
-
-    if(socket){
-      socket.emit('selecionarVeiculo', veiculo.id)
+    if(instancia){
+      instancia.emit('selecionarVeiculo', veiculo.id)
       setVeiculoSelecionado(veiculo)
     }
   }
@@ -116,36 +147,43 @@ export default function Index() {
 
   return (
     <Container>
-      <Dropdown
-        style={[styles.dropdown]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
-        data={veiculos}
-        search
-        maxHeight={300}
-        labelField="name"
-        valueField="id"
-        placeholder={!isFocus ? 'Selecione o veículo' : '...'}
-        searchPlaceholder="Pesquisar..."
-        value={veiculoSelecionado}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
-        onChange={item => {
-          // setVeiculoSelecionado(item);
-          selecionaVeoculo(item);
-          setIsFocus(false);
-        }}
-        renderLeftIcon={() => (
-          <AntDesign
-            style={styles.icon}
-            color={isFocus ? 'blue' : 'black'}
-            name="Safety"
-            size={20}
+      {
+        veiculos !== null 
+        ?(
+
+          <Dropdown
+            style={[styles.dropdown]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            iconStyle={styles.iconStyle}
+            data={veiculos}
+            search
+            maxHeight={300}
+            labelField="name"
+            valueField="id"
+            placeholder={!isFocus ? 'Selecione o veículo' : '...'}
+            searchPlaceholder="Pesquisar..."
+            value={veiculoSelecionado}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={item => {
+              // setVeiculoSelecionado(item);
+              selecionaVeoculo(item);
+              setIsFocus(false);
+            }}
+            renderLeftIcon={() => (
+              <AntDesign
+                style={styles.icon}
+                color={isFocus ? 'blue' : 'black'}
+                name="Safety"
+                size={20}
+              />
+            )}
           />
-        )}
-      />
+        )
+        :<></>
+      }
       {
         location !== null ? (
           <MapComponent localizacao={localizacaoTransporte} localizacaoUsuario={location}></MapComponent>
@@ -160,7 +198,7 @@ export default function Index() {
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
-            data={mensagensMock}
+            data={mensagensVeiculo}
             search
             maxHeight={300}
             labelField="mensagem"

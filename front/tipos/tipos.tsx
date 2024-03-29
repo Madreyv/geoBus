@@ -5,6 +5,7 @@ export interface Veiculos {
   id: string;
 }
 
+
 export interface LoginForm {
   senha: string;
   email:string;
@@ -14,10 +15,15 @@ export interface UserData {
   id: number;
   name: string;
   email: string;
-  token?:string
+  token?:string;
+  idVeiculo?:number;
 }
 export type LoginResponse = AxiosResponse<UserData>;
 
+export type Mensagens = {
+  id: string;
+  mensagem: string;
+}
 export type CadastrarForm = {
   nome: string;
   senha: string;
@@ -31,3 +37,4 @@ export type AuthContextType = {
   login: Function,
   logout: Function
 }
+
