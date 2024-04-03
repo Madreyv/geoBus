@@ -29,7 +29,7 @@ const LoginScreen = () => {
         // Lógica para entrar
         try {
             let userData = await logar(data);
-            console.log('user data', userData)
+            // console.log('user data', userData)
             let user = {
                 email: userData.response.email,
                 name: userData.response.email,

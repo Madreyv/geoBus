@@ -3,24 +3,27 @@ import { ActivityIndicator, Text } from 'react-native';
 import { Marker } from "react-native-maps";
 import { MapIcon, Map, BusTitle, BusTitleContainer } from "./Map.style";
 import { LocationObject, getCurrentPositionAsync, requestForegroundPermissionsAsync } from "expo-location";
+import Popup from '../popup/Popup';
 
 interface IMapProps {
     localizacao: LocationObject | any;
     localizacaoUsuario:LocationObject | any;
+    popupVisible:boolean,
+    setPopupVisible:Function,
+    setExibirComboStatus:Function
 }
 
-export default function MapComponent({localizacao, localizacaoUsuario}:IMapProps) {
+export default function MapComponent({localizacao, localizacaoUsuario,popupVisible,setPopupVisible,setExibirComboStatus}:IMapProps) {
     const [location, setLocation] = useState<LocationObject | any>(null)
     const [isLoading, setIsLoading] = useState(true);
     const [transporteUm, setTransporteUm] = useState<any>(null)
 
-
     useEffect(() => {
-        console.log("localização usuário", localizacaoUsuario)
+        // console.log("localização usuário", localizacaoUsuario)
         // requestLocationPermition()
-        console.log('locaização', localizacao)
+        // console.log('locaização', localizacao)
         if(localizacao != null){
-            console.log('localizacao atualizada')
+            // console.log('localizacao atualizada')
             mudarLocalizacao()
         }
     }, [isLoading, localizacao])
@@ -31,16 +34,10 @@ export default function MapComponent({localizacao, localizacaoUsuario}:IMapProps
         setIsLoading(false)
     }
 
-    async function requestLocationPermition() {
-        const { granted } = await requestForegroundPermissionsAsync()
-
-        if (granted) {
-            const currentPosition = await getCurrentPositionAsync()
-            setLocation(currentPosition)
-            setIsLoading(false)
-            // console.log('localização atual', currentPosition)
-        }
-    }
+    const handleEmbarqueConfirmado = (enviarMensagem:boolean) => {
+        setPopupVisible(false);
+        setExibirComboStatus(enviarMensagem)
+    };
 
     return (
         <>
@@ -93,6 +90,11 @@ export default function MapComponent({localizacao, localizacaoUsuario}:IMapProps
             }
         </Map>)
         }
+        <Popup
+            visible={popupVisible}
+            onClose={() => setPopupVisible(false)}
+            onEmbarqueConfirmado={handleEmbarqueConfirmado}
+        />
         </>
 
         

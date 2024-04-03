@@ -1,8 +1,8 @@
 import { Dropdown } from "react-native-element-dropdown";
 import React, { useContext, useEffect, useState } from 'react';
 import { Container } from "./Index.style";
+import { getDistance, getPreciseDistance } from 'geolib'
 import { LocationObject, getCurrentPositionAsync, requestForegroundPermissionsAsync } from "expo-location";
-import { Veiculos } from "../../tipos/tipos";
 import { IMensagens, mensagensMock, veiculosMock } from "../../mocks/veiculos";
 import { rotaDois, rotaUm } from "../../mocks/coordenadas";
 import { initializeSocket, getSocket } from "../../service.map";
@@ -14,8 +14,10 @@ import { AuthContext } from "../../contexts/authContext";
 import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { listarVeicuosDisponiveis, listarMensagensStatus } from "../../services/services";
+import { Veiculos } from "../../tipos/tipos";
 import { toVeiculos } from "../../dto/veiculos.dto";
 import { toMensagens } from "../../dto/mensagens.dto";
+
 
 
 
@@ -32,9 +34,10 @@ export default function Index() {
   const [localizacaoTransporte, setLocalizacaoTransportes] = useState<any>(null)
   const [mensagensVeiculo, setMensagensveiculo] = useState<Array<IMensagens>>(mensagensMock)
   const [mensagensVeiculoSelecionada, setMensagensveiculoSelecionada] = useState<IMensagens>()
+  const [exibirComboStatus, setExibirComboStatus] = useState<boolean>(false);
   const [transporteUm, setTransporteUm] = useState<any>(null);
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-
+  const [popupVisible, setPopupVisible] = useState(false);
   const transporteUmMock = rotaUm
   const transporteDoisMock = rotaDois
 
@@ -57,14 +60,20 @@ export default function Index() {
   useEffect(() => {
     if(instancia){
       instancia.on('localizacaoVeiculo', (localizacao:any) => {
-        console.log('localização Veiculo', localizacao)
         // Atualize a interface do usuário para exibir a localização do veículo
         modificarLocalizacao(localizacao);
+        
     })
     }else{
       conectarSocket()
     }
   }, [localizacaoTransporte, veiculoSelecionado])
+
+  useEffect(() => {
+    if (contador === 4) {
+      setPopupVisible(true);
+    }
+  }, [contador]);
 
   const conectarSocket = () => {
     const socket = initializeSocket('http://192.168.18.29:3000')//ipv4 ipconfig rede sem fio
@@ -104,7 +113,18 @@ export default function Index() {
   }
 
   const modificarLocalizacao = (localizacao:any) => {
+    let userLocation = { latitude: Number(location?.coords.latitude), longitude: Number(location?.coords.longitude)}
+    // let userLocation = { latitude: Number(-22.37328318846145), longitude: Number(-41.80716902301546)}
+    const distance = getPreciseDistance(
+      userLocation,
+      localizacao
+    );
+    if(distance<=2){
+      setContador(prevContador => prevContador + 1)
+    }
+      console.log('distancia', distance)
     setLocalizacaoTransportes(localizacao)
+    // setPopupVisible(true)
   }
 
   async function requestLocationPermition() {
@@ -112,14 +132,14 @@ export default function Index() {
 
     if (granted) {
       const currentPosition = await getCurrentPositionAsync()
-      console.log('current position', currentPosition)
+      // console.log('current position', currentPosition)
       setLocation(currentPosition)
       
     }
   }
 
   const selecionaVeoculo = (veiculo: any) => {
-    console.log('veiculo', veiculo.id)
+    // console.log('veiculo', veiculo.id)
 
     if(instancia){
       instancia.emit('selecionarVeiculo', veiculo.id)
@@ -128,9 +148,19 @@ export default function Index() {
   }
 
   const selecionarStatusVeiculo = (mensagem:any) => {
-    console.log('mensagem', mensagem)
+    // console.log('mensagem', mensagem)
 
     setMensagensveiculoSelecionada(mensagem);
+  }
+
+  const onClosePopup = () => {
+    setPopupVisible(false)
+    setContador(0)
+  }
+
+  const onExibirComboStatus = (exibir:boolean) => {
+    setExibirComboStatus(exibir)
+    if(exibir) setContador(5)
   }
 
   const renderLabel = () => {
@@ -171,6 +201,8 @@ export default function Index() {
               // setVeiculoSelecionado(item);
               selecionaVeoculo(item);
               setIsFocus(false);
+              setContador(0);
+              setExibirComboStatus(false)
             }}
             renderLeftIcon={() => (
               <AntDesign
@@ -186,11 +218,17 @@ export default function Index() {
       }
       {
         location !== null ? (
-          <MapComponent localizacao={localizacaoTransporte} localizacaoUsuario={location}></MapComponent>
+          <MapComponent 
+            localizacao={localizacaoTransporte}
+            localizacaoUsuario={location} 
+            popupVisible={popupVisible} 
+            setPopupVisible={onClosePopup} 
+            setExibirComboStatus={onExibirComboStatus}         
+          ></MapComponent>
         ) : (<></>)
       }
       {
-        veiculoSelecionado != null || veiculoSelecionado != undefined 
+        (veiculoSelecionado != null || veiculoSelecionado != undefined ) && exibirComboStatus
         ?(
           <Dropdown
             style={[styles.dropdownMensagem]}

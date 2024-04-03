@@ -62,7 +62,7 @@ const MotoristaScreen = () => {
 
     if (granted) {
       const currentPosition = await getCurrentPositionAsync()
-      console.log('current position', currentPosition)
+      // console.log('current position', currentPosition)
       setLocation(currentPosition)
       
     }
@@ -78,7 +78,7 @@ const MotoristaScreen = () => {
                     user:user
                 }
             )
-            console.log("localização emitida")
+            ("localização emitida")
         }
     }else{
         conectarSocket()

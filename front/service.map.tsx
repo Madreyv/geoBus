@@ -19,13 +19,6 @@ export const initializeSocket = (serverUrl : string) => {
         console.log('Disconnect to server');
     });
 
-
-    
-    const ws = new WebSocket(serverUrl);
-    ws.onopen = () => {
-        console.log('conectado ao server');
-    }
-    
     return socket;
     // return ws
 }
