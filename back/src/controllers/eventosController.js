@@ -33,7 +33,7 @@ export const salvarEvento = async (dadosVeiculos) =>{
             longitude: dadosVeiculos.localizacao.longitude, 
             idVeiculo: dadosVeiculos.user.idVeiculo, 
             idUsuario: dadosVeiculos.user.id, 
-            status:dadosVeiculos.status ? dadosVeiculos.status.mensage : null
+            status:dadosVeiculos.status ? dadosVeiculos.status.mensage : 'Veiculo em rota'
         });
         await newEvento.save();
 
@@ -42,7 +42,7 @@ export const salvarEvento = async (dadosVeiculos) =>{
     }
 }
 
-export const listarVeiculos = async() => {
+export const listarVeiculosPorEventos = async() => {
     try {
         const query = `
             SELECT v.trajeto, v.id
@@ -64,20 +64,21 @@ export const listarVeiculos = async() => {
     }
 }
 
-export const eventoPorId = async(idVeiculo) => {
+// const query = `
+//     SELECT v.trajeto, v.id
+//     FROM "Eventos" AS e
+//     JOIN "Veiculos" AS v ON e."idVeiculo" = v."id"
+//     WHERE e."id" = (
+//         SELECT MAX("id")
+//         FROM "Eventos" AS "e2"
+//         WHERE "e2"."idVeiculo" = e."idVeiculo"
+//     );
+//     `;
+
+export const eventoPorIdVeiculo = async(idVeiculo) => {
     try {
-        // const query = `
-        //     SELECT v.trajeto, v.id
-        //     FROM "Eventos" AS e
-        //     JOIN "Veiculos" AS v ON e."idVeiculo" = v."id"
-        //     WHERE e."id" = (
-        //         SELECT MAX("id")
-        //         FROM "Eventos" AS "e2"
-        //         WHERE "e2"."idVeiculo" = e."idVeiculo"
-        //     );
-        //     `;
         const eventos = await  Eventos.findOne({
-            attributes: ['latitude', 'longitude'],
+            attributes: ['latitude', 'longitude','status'],
             where: { idVeiculo: idVeiculo },
             order: [['id', 'DESC']]
           });

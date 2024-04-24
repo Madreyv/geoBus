@@ -12,6 +12,8 @@ export const InputContainer = styled.View`
     flex-direction: row;
     align-items: center;
     margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     /* width: 330px; */
     width: 100%;
     `
@@ -28,9 +30,9 @@ export const InputFormFildContainer = styled.View`
 export const LoginTextInput = styled.TextInput`
     flex: 1;
     height: 40px;
-    border: 1px solid #ccc;
+    border: none;
+    /* border: 1px solid #ccc; */
     padding-left: 40px;
-    border-radius: 6px;
     /* borderWidth: 1px;
     borderColor: #ccc;
     borderRadius: 5px; */
@@ -76,5 +78,12 @@ export const ErrorText = styled.Text`
 `
 
 export const InputIcon = styled.Image`
-    width: 10px;
+    opacity: 0.5;
+`
+export const InputIconContainer = styled.TouchableOpacity`
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
 `

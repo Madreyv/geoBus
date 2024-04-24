@@ -1,5 +1,5 @@
 import express from 'express';
-import { cadastrarUsuario, logarUsuario, listarVeiculos } from '../controllers/userController.js';
+import { cadastrarUsuario, logarUsuario } from '../controllers/userController.js';
 
 const userRouter = express.Router();
 
@@ -9,7 +9,8 @@ userRouter.post('/cadastrar', cadastrarUsuario);
 // Rota para fazer login
 userRouter.post('/logar', logarUsuario);
 
-//Rota para pegar todos os veículos
-userRouter.get('/getVeiculos', listarVeiculos);
 
 export default userRouter;
+
+//Rota para pegar todos os veículos
+// userRouter.get('/getVeiculos', listarVeiculos);

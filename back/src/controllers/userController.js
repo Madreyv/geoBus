@@ -73,12 +73,12 @@ export const logarUsuario = async (req, res) => {
 };
 
 //função para listar os veículos
-export const listarVeiculos = async (req,res) => {
-    try{
-        const usuarios = await User.findAll({where:{tipo:2}})
-        return res.json(usuarios);
-    }catch(error){
-        console.log('error bando de dados ao pegar usuarios tipo 2', error)
-        return res.status(500).json({error:'Erro interno do servidor'});
-    }
-}
+// export const listarVeiculos = async (req,res) => {
+//     try{
+//         const usuarios = await User.findAll({where:{tipo:2}})
+//         return res.json(usuarios);
+//     }catch(error){
+//         console.log('error bando de dados ao pegar usuarios tipo 2', error)
+//         return res.status(500).json({error:'Erro interno do servidor'});
+//     }
+// }

@@ -1,21 +1,18 @@
 import { Dropdown } from "react-native-element-dropdown";
 import React, { useContext, useEffect, useState } from 'react';
 import { Container } from "./Index.style";
-import { getDistance, getPreciseDistance } from 'geolib'
+import { getPreciseDistance } from 'geolib'
 import { LocationObject, getCurrentPositionAsync, requestForegroundPermissionsAsync } from "expo-location";
-import { IMensagens, mensagensMock, veiculosMock } from "../../mocks/veiculos";
-import { rotaDois, rotaUm } from "../../mocks/coordenadas";
-import { initializeSocket, getSocket } from "../../service.map";
-import { StyleSheet, Text, View } from 'react-native';
+import { IMensagens, mensagensMock } from "../../mocks/veiculos";
+import { initializeSocket } from "../../service.map";
+import { StyleSheet, Text } from 'react-native';
 import { AntDesign } from "@expo/vector-icons";
-import { Marker } from "react-native-maps";
 import MapComponent from "../../components/map/Map";
 import { AuthContext } from "../../contexts/authContext";
 import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { listarVeicuosDisponiveis, listarMensagensStatus } from "../../services/services";
+import { listarMensagensStatus } from "../../services/services";
 import { Veiculos } from "../../tipos/tipos";
-import { toVeiculos } from "../../dto/veiculos.dto";
 import { toMensagens } from "../../dto/mensagens.dto";
 
 
@@ -23,9 +20,8 @@ import { toMensagens } from "../../dto/mensagens.dto";
 
 export default function Index() {
 
-  const { token, logout } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [location, setLocation] = useState<LocationObject | null>(null)
-  // const [veiculos, setVeiculos] = useState<Array<Veiculos>>(veiculosMock)
   const [veiculos, setVeiculos] = useState<Array<Veiculos> | null>(null)
   const [veiculoSelecionado, setVeiculoSelecionado] = useState<Veiculos>()
   const [isFocus, setIsFocus] = useState(false);
@@ -35,11 +31,10 @@ export default function Index() {
   const [mensagensVeiculo, setMensagensveiculo] = useState<Array<IMensagens>>(mensagensMock)
   const [mensagensVeiculoSelecionada, setMensagensveiculoSelecionada] = useState<IMensagens>()
   const [exibirComboStatus, setExibirComboStatus] = useState<boolean>(false);
-  const [transporteUm, setTransporteUm] = useState<any>(null);
   const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
   const [popupVisible, setPopupVisible] = useState(false);
-  const transporteUmMock = rotaUm
-  const transporteDoisMock = rotaDois
+  const [compartilhandoLocalizacao, setcompartilhandoLocalizacao] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if(token == null){
@@ -47,6 +42,7 @@ export default function Index() {
     }
     conectarSocket()
     requestLocationPermition()
+    listarMensagens()
   }, [])
   
   useEffect(() => {
@@ -54,15 +50,10 @@ export default function Index() {
   },[instancia])
   
   useEffect(() => {
-    listarMensagens()
-  },[])
-
-  useEffect(() => {
     if(instancia){
       instancia.on('localizacaoVeiculo', (localizacao:any) => {
-        // Atualize a interface do usuário para exibir a localização do veículo
+        console.log('localização', localizacao)
         modificarLocalizacao(localizacao);
-        
     })
     }else{
       conectarSocket()
@@ -119,11 +110,16 @@ export default function Index() {
       userLocation,
       localizacao
     );
+
     if(distance<=2){
       setContador(prevContador => prevContador + 1)
     }
       console.log('distancia', distance)
     setLocalizacaoTransportes(localizacao)
+    if(!isLoading){
+      setIsLoading(true)
+    }
+    
     // setPopupVisible(true)
   }
 
@@ -132,30 +128,48 @@ export default function Index() {
 
     if (granted) {
       const currentPosition = await getCurrentPositionAsync()
-      // console.log('current position', currentPosition)
       setLocation(currentPosition)
       
     }
   }
 
-  const selecionaVeoculo = (veiculo: any) => {
-    // console.log('veiculo', veiculo.id)
-
+  const selecionaVeiculo = (veiculo: any) => {
     if(instancia){
       instancia.emit('selecionarVeiculo', veiculo.id)
       setVeiculoSelecionado(veiculo)
+      setcompartilhandoLocalizacao(false)
+      setLocalizacaoTransportes(null)
+      setIsLoading(true)
     }
   }
 
   const selecionarStatusVeiculo = (mensagem:any) => {
-    // console.log('mensagem', mensagem)
+    console.log('mensagem', mensagem)
+    console.log('veiculo selecionado', user)
 
     setMensagensveiculoSelecionada(mensagem);
+    enviarLocalizacao(mensagem)
+    setcompartilhandoLocalizacao(true)
   }
 
   const onClosePopup = () => {
     setPopupVisible(false)
     setContador(0)
+  }
+
+  const enviarLocalizacao = (mensagem?:any) => {
+    if(instancia ){
+      let usuario = {...user}
+      usuario.idVeiculo = veiculoSelecionado?.id;
+      usuario.status=mensagem
+
+      instancia.emit('setLocalizacaoVeiculo', 
+          {
+              localizacao:location?.coords, 
+              user:usuario
+          }
+      )
+    }
   }
 
   const onExibirComboStatus = (exibir:boolean) => {
@@ -199,7 +213,7 @@ export default function Index() {
             onBlur={() => setIsFocus(false)}
             onChange={item => {
               // setVeiculoSelecionado(item);
-              selecionaVeoculo(item);
+              selecionaVeiculo(item);
               setIsFocus(false);
               setContador(0);
               setExibirComboStatus(false)
@@ -223,7 +237,11 @@ export default function Index() {
             localizacaoUsuario={location} 
             popupVisible={popupVisible} 
             setPopupVisible={onClosePopup} 
-            setExibirComboStatus={onExibirComboStatus}         
+            setExibirComboStatus={onExibirComboStatus}   
+            compartilhandoLocalizacao={compartilhandoLocalizacao}
+            veiculo={veiculoSelecionado}
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}      
           ></MapComponent>
         ) : (<></>)
       }

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { ButtonCadastrar, ButtonLogin, ButtonTextCandastrar, ButtonTextLogin, ErrorText, InputContainer, InputFormFildContainer, InputIcon, LoginContainer, LoginTextInput, TextLink } from './login.style';
+import { ButtonCadastrar, ButtonLogin, ButtonTextCandastrar, ButtonTextLogin, ErrorText, InputContainer, InputFormFildContainer, InputIcon, InputIconContainer, LoginContainer, LoginTextInput, TextLink } from './login.style';
 import { ParamListBase, useNavigation } from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { Controller, useForm, SubmitHandler } from 'react-hook-form';
@@ -26,10 +26,8 @@ const LoginScreen = () => {
     };
 
     const handleEntrar = async (data:LoginForm) => {
-        // Lógica para entrar
         try {
             let userData = await logar(data);
-            // console.log('user data', userData)
             let user = {
                 email: userData.response.email,
                 name: userData.response.email,
@@ -44,14 +42,9 @@ const LoginScreen = () => {
             }else{
                 navigation.navigate('index')
             }
-            // console.log('Usuário logado:', userData.response);
         } catch (error:any) {
             console.error('Erro ao fazer login:', error.message);
         }
-    };
-
-    const handleCadastrar = () => {
-        // Lógica para cadastrar
     };
 
     const handleEsqueceuSenha = () => {
@@ -67,13 +60,13 @@ const LoginScreen = () => {
                     defaultValue=''
                     render={({field:{onChange, onBlur, value = 'madreyv22@gmail.com'}}) => (
                     <InputContainer >
-                        {/* <Image source={require('./assets/person.png')} style={styles.icon} /> */}
                         <LoginTextInput
                             value={value}
                             onChangeText={(value)=>onChange(value)}
                             onBlur={onBlur}
                             placeholder="Login"
                         ></LoginTextInput>
+                        <InputIcon source={require('../../assets/icons/user.png')} />
                     </InputContainer>
 
                     )}
@@ -98,7 +91,7 @@ const LoginScreen = () => {
                     defaultValue=''
                     render={({field:{onChange, onBlur, value='12345678@22'}}) => (
                     <InputContainer >
-                        {/* <InputIcon source={require('../../assets/icons/user.png')} /> */}
+                        {/* <InputIcon source={require('../../assets/icons/eye.png')} /> */}
                         <LoginTextInput
                             value={value}
                             onChangeText={(value)=> onChange(value)}
@@ -107,12 +100,13 @@ const LoginScreen = () => {
                             secureTextEntry={!mostrarSenha}
                         >
                         </LoginTextInput>
-                        <TouchableOpacity onPress={handleMostrarSenha}>
-                            {/* <Image
-                                source={require('./assets/eye.png')}
-                                style={[styles.icon, styles.eyeIcon]}
-                            /> */}
-                        </TouchableOpacity>
+                        <InputIconContainer onPress={handleMostrarSenha}>
+                            {
+                                mostrarSenha
+                                ?(<InputIcon source={require('../../assets/icons/olho-fechado.png')} />)
+                                :(<InputIcon source={require('../../assets/icons/eye.png')} />)
+                            }
+                        </InputIconContainer>
                     </InputContainer>
                     )}
                     rules={{ 

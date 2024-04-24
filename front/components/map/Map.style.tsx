@@ -8,6 +8,7 @@ export const Map = styled(MapView)`
 export const MapIcon = styled.Image`
     width: 50px;
     height: 50px;
+    align-self: center;
     /* border: 1px solid red ; */
 `
 export const BusTitleContainer = styled.View`
